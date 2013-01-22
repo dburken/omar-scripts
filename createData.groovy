@@ -15,7 +15,8 @@ Init.instance().initialize()
 
 class RasterDataSetGenerator
 {
-    def file = "/data/celtic/staged/003/po_105216_pan_0000000.ntf" as File
+//    def file = "/data/celtic/staged/003/po_105216_pan_0000000.ntf" as File
+    def file = "/data/celtic/staged/004/03MAR22074047-M2AS_R2C2-000000042261_01_P001.NTF" as File
     def fileTypes = ['aaigrid', 'cadrg', 'ccf', 'cib', 'doqq', 'dted', 'jpeg', 'jpeg2000', 'landsat7', 'nitf', 'tiff', 'unspecified']
     def missions = ['Toyota', 'Ford', 'Honda', 'Chevrolet', 'Mercedes-Benz', 'BMW', 'Volvo', 'Cadillac', 'Lexus', 'Tesla']
     def sensors = ['ALPHA', 'BRAVO', 'CHARLIE', 'DELTA', 'ECHO', 'FOXTROT']
@@ -46,7 +47,7 @@ class RasterDataSetGenerator
         
         def year = rng.nextInt(13) + 2000  
         def month = rng.nextInt(12)
-        def day = rng.nextInt(cal.getActualMaximum(cal.get(Calendar.MONTH))) + 1
+        def day = rng.nextInt(cal.getActualMaximum(cal.get(Calendar.DAY_OF_MONTH))) + 1
         def hour = rng.nextInt(24)
         def minute = rng.nextInt(60)
         def second = rng.nextInt(60)
@@ -146,11 +147,10 @@ class RasterDataSetGenerator
 
 def start = System.currentTimeMillis()
 
-new RasterDataSetGenerator(sessionFactory: ctx.sessionFactory).createRandomRasterDataSet(10000)
+new RasterDataSetGenerator(sessionFactory: ctx.sessionFactory).createRandomRasterDataSet(1)
 
 def stop = System.currentTimeMillis()
 
 println "${stop - start}"
 
 return 0
-
