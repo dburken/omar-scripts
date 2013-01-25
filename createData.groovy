@@ -5,6 +5,9 @@ import org.ossim.omar.core.Repository
 import org.ossim.omar.raster.RasterDataSet
 
 import geoscript.geom.Point 
+import com.vividsolutions.jts.geom.Geometry
+import com.vividsolutions.jts.geom.Polygon
+import com.vividsolutions.jts.io.WKTReader
 
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.io.FilenameUtils
@@ -15,7 +18,7 @@ Init.instance().initialize()
 
 class RasterDataSetGenerator
 {
-    def file = "/data/celtic/staged/003/po_105216_pan_0000000.ntf" as File
+    def file = "/data/test_suite/raster/celtic/staged/004/03MAR22074047-M2AS_R2C2-000000042261_01_P001.NTF" as File
     def fileTypes = ['aaigrid', 'cadrg', 'ccf', 'cib', 'doqq', 'dted', 'jpeg', 'jpeg2000', 'landsat7', 'nitf', 'tiff', 'unspecified']
     def missions = ['Toyota', 'Ford', 'Honda', 'Chevrolet', 'Mercedes-Benz', 'BMW', 'Volvo', 'Cadillac', 'Lexus', 'Tesla']
     def sensors = ['ALPHA', 'BRAVO', 'CHARLIE', 'DELTA', 'ECHO', 'FOXTROT']
@@ -30,12 +33,12 @@ class RasterDataSetGenerator
     {
         def dataInfo = new DataInfo()
         def template = null
-        
+ 
         if ( dataInfo.open( file.absolutePath ) )
         {
             template = new XmlSlurper().parseText(dataInfo.info)
         }
-        
+       
         dataInfo?.close()
         template
     }
@@ -72,8 +75,9 @@ class RasterDataSetGenerator
         def point = new Point(centerLon, centerLat)
         def radius = rng.nextInt(10) + 1
         def buffer = point.buffer(radius).bounds.polygon
-        
-        buffer.g                
+        def groundGeom = new WKTReader().read( buffer.g.toString() )
+        groundGeom.setSRID( 4326 )
+        groundGeom        
     }
     
     def createRandomMissionId()
@@ -96,7 +100,7 @@ class RasterDataSetGenerator
                 
         if ( template )
         {    
-            for ( def index in 0..<count ) 
+            for ( def index in 0..<count) 
             {        
                 def rasterDataSets = template.dataSets.RasterDataSet.each { rasterDataSetNode -> 
                     def rasterDataSet = RasterDataSet.initRasterDataSet(rasterDataSetNode)
@@ -121,9 +125,8 @@ class RasterDataSetGenerator
                         rasterEntry.missionId = missionId
                         rasterEntry.sensorId = sensorId
                         rasterEntry.filename = filename
-                        rasterEntry.indexId = filename.encodeAsSHA256()                        
+                        rasterEntry.indexId = filename.encodeAsSHA256() 
                     }
-                                        
                     if ( ! rasterDataSet.save() )
                     {
                         rasterDataSet.errors.allErrors.each { println it }
